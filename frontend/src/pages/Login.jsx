@@ -11,11 +11,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post('/api/auth/login', formData);
-      login(response.data);
-      navigate('/tasks');
+      // Backend should return { id, name, email, token }
+      const res = await axiosInstance.post('/api/auth/login', formData);
+      login(res.data);                         // persists to localStorage
+      navigate('/academic-calendar');          // go to calendar after login
     } catch (error) {
-      alert('Login failed. Please try again.');
+      alert(error.response?.data?.message || 'Login failed. Please try again.');
     }
   };
 
