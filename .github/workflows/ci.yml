@@ -95,7 +95,7 @@ jobs:
           NODE_ENV: production
         run: npm ci --omit=dev
 
-      - name: Start/Restart backend with PM2 (robust absolute path + cwd)
+      - name: Start/Restart backend with PM2 (robust)
         env:
             BACKEND_DIR: /home/ubuntu/app/backend
             PM2_APP_NAME: academic-backend
@@ -104,16 +104,15 @@ jobs:
             if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm i -g pm2
             fi
-            # Install pm2 systemd service if not present
             if ! systemctl status pm2-$USER >/dev/null 2>&1; then
             sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u "$USER" --hp "$HOME"
             fi
-            # Clean restart with explicit cwd
             pm2 stop "$PM2_APP_NAME" >/dev/null 2>&1 || true
             pm2 delete "$PM2_APP_NAME" >/dev/null 2>&1 || true
-            pm2 start "$BACKEND_DIR/server.js" --name "$PM2_APP_NAME" --cwd "$BACKEND_DIR"
+            pm2 start "$BACKEND_DIR/server.js" --name "$PM2_APP_NAME" --cwd "$BACKEND_DIR" --restart-delay 5000 --time
             pm2 save
             pm2 status
+
 
 
 
