@@ -95,20 +95,28 @@ jobs:
           NODE_ENV: production
         run: npm ci --omit=dev
 
-      - name: Start/Restart backend with PM2
-        working-directory: ${{ env.APP_DIR }}/backend
-        env:
-          NODE_ENV: production
+      - name: Start/Restart backend with PM2 (robust)
         run: |
-          if ! command -v pm2 >/dev/null 2>&1; then
+            # Ensure pm2 available and systemd unit installed for this user
+            if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm i -g pm2
-            pm2 startup systemd -u "$USER" --hp "$HOME"
-          fi
-          pm2 describe "$PM2_APP_NAME" >/dev/null 2>&1 && \
-            pm2 restart "$PM2_APP_NAME" || \
-            pm2 start server.js --name "$PM2_APP_NAME"
-          pm2 save
-          pm2 status
+            fi
+
+            # Create PM2 systemd service if missing (idempotent)
+            if ! systemctl status pm2-$USER >/dev/null 2>&1; then
+            sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u "$USER" --hp "$HOME"
+            fi
+
+            # Start cleanly with absolute path to avoid cwd surprises
+            pm2 stop "$PM2_APP_NAME" >/dev/null 2>&1 || true
+            pm2 delete "$PM2_APP_NAME" >/dev/null 2>&1 || true
+            pm2 start "$BACKEND_DIR/server.js" --name "$PM2_APP_NAME"
+
+            # Persist process list so it auto-resurrects after reboot
+            pm2 save
+
+            # Sanity print
+            pm2 status
 
       # ---------- Health check ----------
       - name: Health check API
