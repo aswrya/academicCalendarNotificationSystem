@@ -95,28 +95,42 @@ jobs:
           NODE_ENV: production
         run: npm ci --omit=dev
 
-      - name: Start/Restart backend with PM2 (robust)
+      - name: Start/Restart backend with PM2 (robust absolute path)
+        env:
+            BACKEND_DIR: /home/ubuntu/app/backend  # ensure set here too
+            PM2_APP_NAME: academic-backend
         run: |
-            # Ensure pm2 available and systemd unit installed for this user
+            set -e
+
+            # Show where we are and what files exist (diagnostic)
+            echo "PWD=$(pwd)"
+            echo "BACKEND_DIR=$BACKEND_DIR"
+            ls -la "$BACKEND_DIR" || true
+
+            # Ensure server.js exists before trying to start
+            if [ ! -f "$BACKEND_DIR/server.js" ]; then
+            echo "ERROR: $BACKEND_DIR/server.js not found"
+            exit 1
+            fi
+
+            # Ensure pm2 exists
             if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm i -g pm2
             fi
 
-            # Create PM2 systemd service if missing (idempotent)
+            # Ensure PM2 systemd service is installed for this user
             if ! systemctl status pm2-$USER >/dev/null 2>&1; then
             sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u "$USER" --hp "$HOME"
             fi
 
-            # Start cleanly with absolute path to avoid cwd surprises
+            # Restart cleanly using absolute path
             pm2 stop "$PM2_APP_NAME" >/dev/null 2>&1 || true
             pm2 delete "$PM2_APP_NAME" >/dev/null 2>&1 || true
             pm2 start "$BACKEND_DIR/server.js" --name "$PM2_APP_NAME"
 
-            # Persist process list so it auto-resurrects after reboot
             pm2 save
-
-            # Sanity print
             pm2 status
+
 
       # ---------- Health check ----------
       - name: Health check API
