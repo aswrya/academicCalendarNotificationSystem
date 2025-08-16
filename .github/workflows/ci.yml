@@ -3,6 +3,7 @@ name: CI-CD to EC2
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:  # manual trigger if you ever need it
 
 concurrency:
   group: deploy-main
@@ -17,21 +18,31 @@ jobs:
       APP_DIR: /home/ubuntu/app
       NGINX_HTML_DIR: /var/www/academiccalendar
       PM2_APP_NAME: academic-backend
+      # Frontend build-time API base (set as repo secret)
       REACT_APP_API_URL: ${{ secrets.FRONTEND_API_URL }}
+      # Multiline backend env written to backend/.env (set as repo secret)
       BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Ensure base dirs
+      - name: Ensure base dirs and tools
         run: |
           sudo mkdir -p "$NGINX_HTML_DIR"
           sudo chown -R "$USER:$USER" "$NGINX_HTML_DIR"
           mkdir -p "$APP_DIR"
+          if ! command -v rsync >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y rsync
+          fi
 
-      - name: Sync repo to APP_DIR
-        run: rsync -a --delete --exclude='.git' ./ "$APP_DIR/"
+      - name: Sync repo to APP_DIR (preserve backend/.env)
+        run: |
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='backend/.env' \
+            ./ "$APP_DIR/"
 
       - name: Setup Node 20
         uses: actions/setup-node@v4
@@ -43,7 +54,7 @@ jobs:
             frontend/package-lock.json
 
       # ---------- CI: Backend tests ----------
-      - name: Install backend deps
+      - name: Install backend deps (dev)
         working-directory: ${{ env.APP_DIR }}/backend
         run: npm ci
 
@@ -60,6 +71,7 @@ jobs:
         working-directory: ${{ env.APP_DIR }}/frontend
         env:
           REACT_APP_API_URL: ${{ env.REACT_APP_API_URL }}
+          NODE_OPTIONS: --max-old-space-size=512
         run: npm run build
 
       # ---------- Deploy: Frontend to Nginx ----------
@@ -67,19 +79,26 @@ jobs:
         working-directory: ${{ env.APP_DIR }}/frontend
         run: sudo rsync -a --delete build/ "$NGINX_HTML_DIR/"
 
-      # ---------- Deploy: Backend with PM2 ----------
-      - name: Write backend .env from secret
+      # ---------- Secrets: write/refresh backend .env from secret ----------
+      - name: Write backend .env from secret (overwrites if exists)
         working-directory: ${{ env.APP_DIR }}/backend
         run: |
           echo "$BACKEND_ENV" > .env
           chmod 600 .env
+          echo "Wrote $(pwd)/.env"
+          tail -n +1 .env | sed -e 's/=.*$/=***redacted***/'
 
+      # ---------- Deploy: Backend with PM2 ----------
       - name: Install backend deps (prod)
         working-directory: ${{ env.APP_DIR }}/backend
+        env:
+          NODE_ENV: production
         run: npm ci --omit=dev
 
       - name: Start/Restart backend with PM2
         working-directory: ${{ env.APP_DIR }}/backend
+        env:
+          NODE_ENV: production
         run: |
           if ! command -v pm2 >/dev/null 2>&1; then
             sudo npm i -g pm2
@@ -89,10 +108,10 @@ jobs:
             pm2 restart "$PM2_APP_NAME" || \
             pm2 start server.js --name "$PM2_APP_NAME"
           pm2 save
+          pm2 status
 
-      # ---------- (Optional) Simple health check ----------
+      # ---------- Health check ----------
       - name: Health check API
         run: |
           sleep 2
-          curl -fsS http://127.0.0.1:5001/ || exit 0
-          # If you add /api/health, prefer: curl -fsS http://127.0.0.1:5001/api/health
+          curl -fsS http://127.0.0.1:5001/api/health
