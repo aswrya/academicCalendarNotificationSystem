@@ -33,7 +33,7 @@ export default function AcademicCalendar() {
 
   const loadEvents = useCallback(async (r) => {
     try {
-      const res = await axiosInstance.get('academic', {
+      const res = await axiosInstance.get('/api/academic', {
         headers: { Authorization: `Bearer ${user.token}` },
         params: { from: toISO(r.from), to: toISO(r.to), limit: 500, skip: 0 },
       });
@@ -85,7 +85,7 @@ export default function AcademicCalendar() {
     if (!form.title || !form.start || !form.end) return alert('Please fill Title, Start and End');
     try {
       const payload = { title: form.title, start: toISO(form.start), end: toISO(form.end), allDay: !!form.allDay };
-      const res = await axiosInstance.post('academic', payload, {
+      const res = await axiosInstance.post('/academic', payload, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       const ev = { ...res.data, start: new Date(res.data.start), end: new Date(res.data.end) };
@@ -101,7 +101,7 @@ export default function AcademicCalendar() {
     if (!form.title || !form.start || !form.end) return alert('Please fill Title, Start and End');
     try {
       const payload = { title: form.title, start: toISO(form.start), end: toISO(form.end), allDay: !!form.allDay };
-      const res = await axiosInstance.put(`academic/${editing._id}`, payload, {
+      const res = await axiosInstance.put(`/api/academic/${editing._id}`, payload, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       const saved = { ...res.data, start: new Date(res.data.start), end: new Date(res.data.end) };
@@ -116,7 +116,7 @@ export default function AcademicCalendar() {
     if (!editing) return;
     if (!window.confirm(`Delete "${editing.title}"?`)) return;
     try {
-      await axiosInstance.delete(`academic/${editing._id}`, {
+      await axiosInstance.delete(`/api/academic/${editing._id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       setEvents(prev => prev.filter(e => e._id !== editing._id));
