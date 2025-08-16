@@ -12,7 +12,7 @@ const Login = () => {
     e.preventDefault();
     try {
       // Backend should return { id, name, email, token }
-      const res = await axiosInstance.post('/api/auth/login', formData);
+      const res = await axiosInstance.post('auth/login', formData);
       login(res.data);                         // persists to localStorage
       navigate('/academic-calendar');          // go to calendar after login
     } catch (error) {
