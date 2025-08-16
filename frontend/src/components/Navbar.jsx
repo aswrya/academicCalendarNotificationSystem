@@ -12,12 +12,24 @@ const Navbar = () => {
 
   return (
     <nav className="bg-blue-600 text-white p-4 flex justify-between items-center">
-      <Link to="/" className="text-2xl font-bold">Your apps name</Link>
-      <div>
+      <Link to="/academic-calendar" className="text-2xl font-bold">Academic Calendar</Link>
+
+      <div className="flex items-center gap-3">
         {user ? (
           <>
-            <Link to="/tasks" className="mr-4">CRUD</Link>
-            <Link to="/profile" className="mr-4">Profile</Link>
+            <Link to="/academic-calendar" className="hover:underline">Calendar</Link>
+
+            {/* NEW: Add Event lives in Navbar */}
+            <button
+              onClick={() => navigate('/academic-calendar?new=1')}
+              className="btn-primary"
+            >
+              + Add Event
+            </button>
+
+
+            <Link to="/profile" className="hover:underline">Profile</Link>
+
             <button
               onClick={handleLogout}
               className="bg-red-500 px-4 py-2 rounded hover:bg-red-700"
@@ -27,10 +39,10 @@ const Navbar = () => {
           </>
         ) : (
           <>
-            <Link to="/login" className="mr-4">Login</Link>
+            <Link to="/login" className="hover:underline">Login</Link>
             <Link
               to="/register"
-              className="bg-green-500 px-4 py-2 rounded hover:bg-green-700"
+              className="bg-green-500 px-3 py-2 rounded hover:bg-green-700"
             >
               Register
             </Link>
