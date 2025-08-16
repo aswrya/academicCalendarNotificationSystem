@@ -1,28 +1,86 @@
-name: CI
+name: CI-CD to EC2
 
 on:
-    push:
-        branches:
-            - main
-    pull_request:
-        branches:
-            - main
+  push:
+    branches: [ main ]
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
+  build-test-deploy:
+    name: Build, Test, Deploy (Self-hosted EC2)
+    runs-on: [self-hosted, ec2, app]
 
-        steps:
-        - name: Checkout code
-            uses: actions/checkout@v2
+    env:
+      # Paths on EC2
+      APP_DIR: /home/ubuntu/app
+      NGINX_HTML_DIR: /var/www/academiccalendar
+      PM2_APP_NAME: academic-backend
 
-        - name: Set up Node.js
-            uses: actions/setup-node@v2
-            with:
-                node-version: '14'
+      # Build-time env for React (optional; set in repo → Settings → Secrets → Actions)
+      REACT_APP_API_URL: ${{ secrets.FRONTEND_API_URL }}
 
-        - name: Install dependencies
-            run: npm install
+      # Multi-line backend env (written to backend/.env)
+      BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
 
-        - name: Run tests
-            run: npm test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure base dirs
+        run: |
+          sudo mkdir -p $NGINX_HTML_DIR
+          sudo chown -R $USER:$USER $NGINX_HTML_DIR
+          mkdir -p $APP_DIR
+
+      - name: Sync repo to APP_DIR
+        run: |
+          rsync -a --delete --exclude='.git' ./ $APP_DIR/
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # ---------- CI: Backend tests ----------
+      - name: Install backend deps
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: npm ci
+
+      - name: Run backend tests
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: npm test
+
+      # ---------- CI: Frontend build ----------
+      - name: Install frontend deps
+        working-directory: ${{ env.APP_DIR }}/frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ${{ env.APP_DIR }}/frontend
+        env:
+          REACT_APP_API_URL: ${{ env.REACT_APP_API_URL }}
+        run: npm run build
+
+      # ---------- Deploy: Frontend to Nginx ----------
+      - name: Deploy frontend to Nginx
+        working-directory: ${{ env.APP_DIR }}/frontend
+        run: |
+          sudo rsync -a --delete build/ $NGINX_HTML_DIR/
+
+      # ---------- Deploy: Backend with PM2 ----------
+      - name: Write backend .env from secret
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: |
+          echo "$BACKEND_ENV" > .env
+          chmod 600 .env
+
+      - name: Start/Restart backend with PM2
+        working-directory: ${{ env.APP_DIR }}/backend
+        run: |
+          if ! command -v pm2 >/dev/null 2>&1; then
+            sudo npm i -g pm2
+            pm2 startup systemd -u $USER --hp $HOME
+          fi
+          pm2 describe $PM2_APP_NAME >/dev/null 2>&1 && \
+            pm2 restart $PM2_APP_NAME || \
+            pm2 start server.js --name $PM2_APP_NAME
+          pm2 save
