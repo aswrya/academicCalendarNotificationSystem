@@ -33,7 +33,7 @@ export default function AcademicCalendar() {
 
   const loadEvents = useCallback(async (r) => {
     try {
-      const res = await axiosInstance.get('/api/academic', {
+      const res = await axiosInstance.get('/academic', {
         headers: { Authorization: `Bearer ${user.token}` },
         params: { from: toISO(r.from), to: toISO(r.to), limit: 500, skip: 0 },
       });
