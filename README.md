@@ -1,94 +1,178 @@
+#Academic Calendar Notification System
 
-**Assessment 1 (Total Marks **20**)**
+  A full-stack web application for managing and notifying users about academic calendar events.
+  Built with Node.js (Express) backend + React frontend, deployed on AWS EC2 with Nginx + PM2, and automated with GitHub Actions CI/CD.
 
-Assignment: **Software requirements analysis and design (**Full-Stack CRUD Application Development with DevOps Practices**)**
+#Features
+
+  Backend:
+
+  REST APIs with Express.js
+
+  JWT authentication
+
+  MongoDB persistence (Atlas or self-hosted)
+
+  Task management endpoints
+
+  Tested with Mocha + Chai + Sinon
+
+  Frontend:
+
+  React with Bootstrap
+
+  Axios API integration
+
+  Responsive UI
+
+  Build artifacts deployed via Nginx
+
+  DevOps:
+
+  GitHub Actions pipeline for CI/CD
+
+  Self-hosted runner on EC2 (t2.micro)
+
+  Deployment with PM2 (backend) + Nginx (frontend)
+
+# Project Architecture
+  academicCalendarNotificationSystem/
+  ├── backend/              # Express.js API server
+  │   ├── routes/           # API routes
+  │   ├── controllers/      # Request handlers
+  │   ├── models/           # Mongoose models
+  │   ├── tests/            # Mocha/Chai/Sinon tests
+  │   └── server.js         # Entry point
+  │
+  ├── frontend/             # React app
+  │   ├── public/
+  │   ├── src/
+  │   └── package.json
+  │
+  ├── .github/workflows/ci.yml   # CI/CD workflow
+  ├── .env.example          # Example environment variables
+  ├── README.md             # Project docs
+  └── package.json
 
 
----
+# Branches
 
-**Objective**
+  dev: Development branch for feature work.
 
-You have been provided with a starter project that includes user authentication using Node.js, React.js, and MongoDB. Your task is to extend this application by implementing CRUD (Create, Read, Update, Delete) operations of different featuresfor a real-world application of your choice, while following industry best practices such as: 
+  main: Protected branch. Merging into main triggers the CI/CD pipeline and deploys to EC2.
 
-* **Project Management with JIRA**
-* **Requirement Diagram**, **Block Definition Diagram (**BDD), Parametric Diagram using**SysML**
-* **Version Control using GitHub**
-* **CI/CD Integration for Automated Deployment**
+# Environment Variables
 
----
+  All secrets must be placed in a .env file inside backend/.
+  The repository includes .env.example as a reference.
 
-**GitHub link of the starter project: **[https://github.com/rajuiit/sdlapps](https://github.com/rajuiit/sdlapps)
+  backend/.env.example
+# MongoDB connection string (include database name at end)
+  MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/academicCalendar
 
----
+# JWT secret for signing tokens
+  JWT_SECRET=your_secret_here
 
-**Requirement**
+# Backend server port
+  PORT=5001
 
-1. **Choose a Real-World Application**
 
-We will send you an email to choose a Real-World project. If you face any difficulties in choosing your project, please contact your tutor.
+# Copy this file before running locally:
 
-2. **Project Design with SysML and Project Management with JIRA**
+  cp backend/.env.example backend/.env
 
-* Draw a requirements diagram, Block Definition Diagram (BDD), and Parametric Diagram based on your project (Connect all functional features).
-* Create a JIRA project and define:
-  * Epic
-  * User Stories (features required in your app)
-  * Child issues or Subtasks (breaking down development work)
-  * Sprint Implementation (organizing work into milestones)
-* Provide your JIRA board URL in the project README.
 
-**3. Backend Development (Node.js + Express + MongoDB)**
+  Then fill in your own values.
 
-* Set up and configure the MongoDB database connection.
-* Implement various backend functions for handling application data.Ensure that all functions are compatible with an Application Programming Interface (API) structure(Follow existing patterns used in the Task Manager App where applicable).
-* Implement CRUD operations forcreating, reading, updating, and deleting records for each functionality.
+## Running Locally
+  1. Clone the repo
+  git clone https://github.com/<your-username>/academicCalendarNotificationSystem.git
+  cd academicCalendarNotificationSystem
 
-4. **Frontend Development (React.js)**
+  2. Backend setup
+  cd backend
+  npm install
+  cp .env.example .env   # then edit with your secrets
+  npm run dev            # starts on http://localhost:5001
 
-* Create a user-friendly interface to interact with your API endpoint (Follow task manager app).
-* Implement different forms for adding, updating, and deleting records.
-* Display data using tables, cards, or lists (Follow how we showed data in task manager app, try to implement better visualization for the frontend.)
 
-**5. Authentication & Authorization** (Prerequisite Task)
+  Test backend:
 
-* Ensure only authenticated users can access and perform CRUD operations. (Already developed in your project)
-* Use JWT (JSON Web Tokens) for user authentication (Use the task manager one from .env file).
+  curl http://localhost:5001/api/health
 
-**6. GitHub Version Control & Branching Strategy**
+  3. Frontend setup
+  cd frontend
+  npm install
+  npm start              # starts on http://localhost:3000
 
-* Use GitHub for version control and maintain:
-* main branch (stable production-ready code)
-* Feature branches for each new feature
-* Follow proper commit messages and pull request (PR) for code reviews.
 
-**7. CI/CD Pipeline Setup**
+  By default the frontend proxies API calls to http://localhost:5001.
 
-* Implement a CI/CD pipeline using GitHub Actions to:
-* Automatically run tests on every commit/pull request (Optional).
-* Deploy the backend to AWS. (Use the QUT provided EC2 instance)
-* Deploy the frontend to AWS.
-* Document your CI/CD workflow in the README.
+# Running Tests
 
----
+  Backend tests use Mocha, Chai, Sinon.
 
-**Submission Requirements**
+  cd backend
+  npm test
 
-**A report **contains** the following (Provide screenshots as evidence for each implemented task. **The screenshot should **contain** your username** from JIRA, GITHUB, and AWS**):
+# CI/CD Workflow
 
-* **JIRA Project **Management**(Provide screenshots in the **report o**f at least two epics**, **including user story, sub**t**a**sks**. **Please **don’t** provide **the **U**ser Authentication** epic**.**Provide your JIRA Board URL in the report and README file as well.**Through the JIRA Board, we will systematically review the completeness of the project features, organised under Epics, User Stories, and Sub-tasks.**
-* Requirement diagram, Block Definition Diagram (BDD), Parametric Diagram (Using project features).
-* **GitHub Repository (backend/ and frontend/)** link. We will **review** your code implementation, which you followed from the task description. We will also **review** your commits, main branch, feature branches, and pull requests. **(**Please note that the authorisation** (Log In, Registration)** is the prerequisite for backend development.**)**
-* CI/CD pipeline details step by step screenshot.
-* README.md with:
-* Project setup instructions.
-* Public URL of your project.
-* Provide a project-specific username and password if we need to access your dashboard.
+  Trigger: Push or merge to main branch
 
----
+  Runner: Self-hosted GitHub Actions runner on the same EC2 instance
 
-**Assessment Criteria:**
+  Steps:
 
-* Clarity and completeness of Jira board and SysML models.
-* Adherence to Git best practices and practical contributions.
-* Successful implementation, deploymentand CI/CD pipeline.
-* Problem-solving skills and the ability to go beyond basic requirements.
+  Checkout repo
+
+  Install dependencies & run backend tests
+
+  Build frontend
+
+  Deploy frontend build → /var/www/academiccalendar (served via Nginx)
+
+  Deploy backend with PM2 (academic-backend)
+
+  Notes:
+
+  .env in backend on EC2 is written at deploy time from GitHub Secrets (BACKEND_ENV).
+
+  .env.example is just a template. Fill it with your own secrets locally.
+
+  Frontend build uses FRONTEND_API_URL secret to connect to backend (http://<EC2-Public-DNS>:5001).
+
+# Deployment
+
+  Frontend → accessible via EC2 Public DNS / Elastic IP (http://<ec2-dns>/)
+
+  Backend → exposed on port 5001 (http://<ec2-dns>:5001/)
+
+  Process Manager → PM2 ensures backend auto-restarts on crash or reboot
+
+# Secrets Management
+
+  Local development → .env file (ignored by git)
+
+  Production → GitHub Actions Secrets (FRONTEND_API_URL, BACKEND_ENV)
+
+  Never commit actual .env with secrets.
+
+# Contribution Workflow
+
+  Create feature branch from dev
+
+  Commit & push changes
+
+  Open a Pull Request into dev
+
+  Once stable → merge dev → main to deploy
+
+# Roadmap
+
+  Add monitoring endpoint /api/health
+
+  Expand test coverage
+
+  CI/CD matrix for multiple Node versions
+
+  Dockerize frontend & backend
