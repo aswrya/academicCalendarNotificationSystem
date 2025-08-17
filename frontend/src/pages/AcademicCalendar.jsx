@@ -112,16 +112,17 @@ export default function AcademicCalendar() {
   };
 
   const deleteEvent = async () => {
-    if (!editing) return;
+    if (!editing?._id) { alert('Missing event id'); return; }
     if (!window.confirm(`Delete "${editing.title}"?`)) return;
+
     try {
-      await axiosInstance.delete(`aacademic/${editing._id}`, {
+        await axiosInstance.delete(`academic/${editing._id}`, {
         headers: { Authorization: `Bearer ${user.token}` },
-      });
-      setEvents(prev => prev.filter(e => e._id !== editing._id));
-      setOpen(false);
+        });
+        setEvents(prev => prev.filter(e => e._id !== editing._id));
+        setOpen(false);
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to delete event');
+        alert(err.response?.data?.message || 'Failed to delete event');
     }
   };
 
