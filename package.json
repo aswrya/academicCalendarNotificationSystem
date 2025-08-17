@@ -1,7 +1,7 @@
 {
-  "name": "task-manager",
+  "name": "academic-calendar",
   "version": "1.0.0",
-  "description": "Complete MERN Task Manager Application",
+  "description": "Complete MERN Academic Calendar Application",
   "scripts": {
     "install-all": "npm install && npm install --prefix backend && npm install --prefix frontend",
     "start": "concurrently \"npm start --prefix backend\" \"npm start --prefix frontend\"",

@@ -1,4 +1,4 @@
-// Add these two lines at the very top:
+// backend/server.js
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config({ path: path.join(__dirname, '.env') });
@@ -12,9 +12,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/academic', require('./routes/academicRoutes')); 
+app.use('/api/academic', require('./routes/academicRoutes'));
 
-app.get('/api/health', (req, res) => res.json({ ok: true }));
+app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 if (require.main === module) {
   (async () => {

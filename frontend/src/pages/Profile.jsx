@@ -1,9 +1,10 @@
+// frontend/src/pages/Profile.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../axiosConfig';
 
 const Profile = () => {
-  const { user } = useAuth(); // Access user token from context
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -13,11 +14,10 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch profile data from the backend
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get('/auth/profile', {
+        const response = await axiosInstance.get('auth/profile', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         setFormData({
@@ -26,13 +26,12 @@ const Profile = () => {
           university: response.data.university || '',
           address: response.data.address || '',
         });
-      } catch (error) {
+      } catch {
         alert('Failed to fetch profile. Please try again.');
       } finally {
         setLoading(false);
       }
     };
-
     if (user) fetchProfile();
   }, [user]);
 
@@ -40,20 +39,18 @@ const Profile = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axiosInstance.put('/api/auth/profile', formData, {
+      await axiosInstance.put('auth/profile', formData, {
         headers: { Authorization: `Bearer ${user.token}` },
       });
       alert('Profile updated successfully!');
-    } catch (error) {
+    } catch {
       alert('Failed to update profile. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return <div className="text-center mt-20">Loading...</div>;
-  }
+  if (loading) return <div className="text-center mt-20">Loading...</div>;
 
   return (
     <div className="max-w-md mx-auto mt-20">

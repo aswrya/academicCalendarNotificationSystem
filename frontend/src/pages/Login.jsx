@@ -1,3 +1,4 @@
+// frontend/src/pages/Login.jsx
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -11,10 +12,9 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Backend should return { id, name, email, token }
-      const res = await axiosInstance.post('api/auth/login', formData);
-      login(res.data);                         // persists to localStorage
-      navigate('/academic-calendar');          // go to calendar after login
+      const res = await axiosInstance.post('auth/login', formData);
+      login(res.data);
+      navigate('/academic-calendar');
     } catch (error) {
       alert(error.response?.data?.message || 'Login failed. Please try again.');
     }

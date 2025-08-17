@@ -1,3 +1,4 @@
+// frontend/src/pages/Register.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosConfig';
@@ -9,11 +10,11 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axiosInstance.post('api/auth/register', formData);
+      await axiosInstance.post('auth/register', formData);
       alert('Registration successful. Please log in.');
       navigate('/login');
     } catch (error) {
-      alert('Registration failed. Please try again.');
+      alert(error.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 

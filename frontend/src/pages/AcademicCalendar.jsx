@@ -1,5 +1,6 @@
+// frontend/src/pages/AcademicCalendar.jsx
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';           // NEW
+import { useSearchParams } from 'react-router-dom';
 import axiosInstance from '../axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
@@ -22,7 +23,7 @@ const toISO = (d) => (d instanceof Date ? d.toISOString() : new Date(d).toISOStr
 
 export default function AcademicCalendar() {
   const { user } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();    // NEW
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [events, setEvents] = useState([]);
   const [range, setRange] = useState({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) });
@@ -36,7 +37,7 @@ export default function AcademicCalendar() {
       const res = await axiosInstance.get('academic', {
         headers: { Authorization: `Bearer ${user.token}` },
         params: { from: toISO(r.from), to: toISO(r.to), limit: 500, skip: 0 },
-    });
+      });
       const mapped = res.data.map(e => ({ ...e, start: new Date(e.start), end: new Date(e.end) }));
       setEvents(mapped);
     } catch (err) {
@@ -46,11 +47,9 @@ export default function AcademicCalendar() {
 
   useEffect(() => { if (user) loadEvents(range); }, [user, range, loadEvents]);
 
-  // Auto-open create modal when coming from Navbar (+ Add Event)
   useEffect(() => {
     if (searchParams.get('new') === '1') {
       openCreate();
-      // Clear the param so it doesn’t re-open on re-render or refresh
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -87,7 +86,7 @@ export default function AcademicCalendar() {
       const payload = { title: form.title, start: toISO(form.start), end: toISO(form.end), allDay: !!form.allDay };
       const res = await axiosInstance.post('academic', payload, {
         headers: { Authorization: `Bearer ${user.token}` },
-    });
+      });
       const ev = { ...res.data, start: new Date(res.data.start), end: new Date(res.data.end) };
       setEvents(prev => [...prev, ev]);
       setOpen(false);
@@ -101,9 +100,9 @@ export default function AcademicCalendar() {
     if (!form.title || !form.start || !form.end) return alert('Please fill Title, Start and End');
     try {
       const payload = { title: form.title, start: toISO(form.start), end: toISO(form.end), allDay: !!form.allDay };
-        const res = await axiosInstance.put(`academic/${editing._id}`, payload, {
+      const res = await axiosInstance.put(`academic/${editing._id}`, payload, {
         headers: { Authorization: `Bearer ${user.token}` },
-    });
+      });
       const saved = { ...res.data, start: new Date(res.data.start), end: new Date(res.data.end) };
       setEvents(prev => prev.map(e => e._id === saved._id ? saved : e));
       setOpen(false);
@@ -116,9 +115,9 @@ export default function AcademicCalendar() {
     if (!editing) return;
     if (!window.confirm(`Delete "${editing.title}"?`)) return;
     try {
-      await axiosInstance.delete(`academic/${editing._id}}`, {
-            headers: { Authorization: `Bearer ${user.token}` },
-        });
+      await axiosInstance.delete(`academic/${editing._id}`, {
+        headers: { Authorization: `Bearer ${user.token}` },
+      });
       setEvents(prev => prev.filter(e => e._id !== editing._id));
       setOpen(false);
     } catch (err) {
@@ -140,7 +139,6 @@ export default function AcademicCalendar() {
     <div className="p-6 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-3xl font-bold">Academic Calendar</h1>
-        {/* Removed the local + Add Event button */}
       </div>
 
       <div className="bg-white rounded shadow p-2">
@@ -154,8 +152,8 @@ export default function AcademicCalendar() {
           defaultDate={defaultDate}
           style={{ height: 700 }}
           selectable
-          onSelectEvent={openEdit}      // click existing -> edit dialog
-          onSelectSlot={openCreate}     // drag/click empty -> create dialog
+          onSelectEvent={openEdit}
+          onSelectSlot={openCreate}
           onRangeChange={handleRangeChange}
         />
       </div>

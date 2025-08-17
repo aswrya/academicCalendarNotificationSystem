@@ -1,3 +1,4 @@
+// frontend/src/components/Navbar.jsx
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -19,14 +20,12 @@ const Navbar = () => {
           <>
             <Link to="/academic-calendar" className="hover:underline">Calendar</Link>
 
-            {/* NEW: Add Event lives in Navbar */}
             <button
               onClick={() => navigate('/academic-calendar?new=1')}
-              className="btn-primary"
+              className="px-3 py-2 rounded bg-white text-blue-600 font-semibold hover:bg-blue-100"
             >
               + Add Event
             </button>
-
 
             <Link to="/profile" className="hover:underline">Profile</Link>
 
