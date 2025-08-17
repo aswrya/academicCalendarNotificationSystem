@@ -109,11 +109,16 @@ jobs:
             fi
             pm2 stop "$PM2_APP_NAME" >/dev/null 2>&1 || true
             pm2 delete "$PM2_APP_NAME" >/dev/null 2>&1 || true
-            pm2 start "$BACKEND_DIR/server.js" --name "$PM2_APP_NAME" --cwd "$BACKEND_DIR" --restart-delay 5000 --time
+            cd "$BACKEND_DIR"
+            pm2 start server.js \
+            --name "$PM2_APP_NAME" \
+            --cwd "$BACKEND_DIR" \
+            --restart-delay 5000 \
+            --time \
+            --update-env
+
             pm2 save
             pm2 status
-
-
 
 
       # ---------- Health check ----------
