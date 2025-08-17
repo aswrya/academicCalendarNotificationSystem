@@ -1,7 +1,7 @@
 // frontend/src/axiosConfig.js
 import axios from 'axios';
 
-const base = (process.env.REACT_APP_API_URL || '/api').replace(/\/+$/, ''); // default to '/api'
+const base = (process.env.REACT_APP_API_URL || '/').replace(/\/+$/, ''); // default to '/api'
 const axiosInstance = axios.create({
   baseURL: base, 
   headers: { 'Content-Type': 'application/json' },
