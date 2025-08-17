@@ -1,15 +1,13 @@
+// frontend/src/axiosConfig.js
 import axios from 'axios';
 
-const base = (process.env.REACT_APP_API_URL || '').replace(/\/+$/, '');
-
-const baseURL = base || undefined;
-
+const base = (process.env.REACT_APP_API_URL || '/api').replace(/\/+$/, ''); // default to '/api'
 const axiosInstance = axios.create({
-  baseURL,
+  baseURL: base, 
   headers: { 'Content-Type': 'application/json' },
 });
 
-
+// Attach token from localStorage on every request
 axiosInstance.interceptors.request.use((config) => {
   try {
     const raw = localStorage.getItem('user');
@@ -17,12 +15,11 @@ axiosInstance.interceptors.request.use((config) => {
     if (user?.token) {
       config.headers.Authorization = `Bearer ${user.token}`;
     }
-  } catch {
-    // ignore JSON parse errors
-  }
+  } catch {}
   return config;
 });
 
+// If backend returns 401, clear token and send to login
 axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
