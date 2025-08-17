@@ -6,7 +6,7 @@ const root = process.env.REACT_APP_API_URL || '/api';
 const base = root.replace(/\/+$/, '') + '/';
 
 const axiosInstance = axios.create({
-  baseURL: base, // e.g., http://localhost:5001/api/
+  baseURL: base,
   headers: { 'Content-Type': 'application/json' },
 });
 
