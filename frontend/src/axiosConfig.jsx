@@ -1,11 +1,15 @@
 import axios from 'axios';
 
+const base = (process.env.REACT_APP_API_URL || '').replace(/\/+$/, '');
+
+const baseURL = base || undefined;
+
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '',
+  baseURL,
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach token from localStorage on every request
+
 axiosInstance.interceptors.request.use((config) => {
   try {
     const raw = localStorage.getItem('user');
@@ -19,7 +23,6 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-// Optional: if backend says 401, clear stale token and go to login
 axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
