@@ -1,7 +1,7 @@
 // Add these two lines at the very top:
 const path = require('path');
 const dotenv = require('dotenv');
-dotenv.config({ path: path.join(__dirname, '.env') }); // robust: loads backend/.env even if cwd differs
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const express = require('express');
 const cors = require('cors');
@@ -12,9 +12,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/academic', require('./routes/academicRoutes'));
-app.use('/api/tasks', require('./routes/taskRoutes'));   
-// app.use('/api/tasks', require('./routes/taskRoutes'));
+app.use('/api/academic', require('./routes/academicRoutes')); 
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 

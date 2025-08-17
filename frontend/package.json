@@ -1,5 +1,6 @@
 {
-  "name": "task-manager-frontend",
+  "name": "academic-calendar-frontend",
+  "description": "Academic Calendar SPA",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
