@@ -1,9 +1,9 @@
-#Academic Calendar Notification System
+# Academic Calendar Notification System
 
   A full-stack web application for managing and notifying users about academic calendar events.
   Built with Node.js (Express) backend + React frontend, deployed on AWS EC2 with Nginx + PM2, and automated with GitHub Actions CI/CD.
 
-#Features
+# Features
 
   Backend:
 
